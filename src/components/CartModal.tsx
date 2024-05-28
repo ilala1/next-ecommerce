@@ -45,55 +45,55 @@ const CartModal = () => {
 					LIST
 					<div className="flex flex-col gap-8">
 						{/* ITEM */}
-							<div className="flex gap-4" >
-									<Image
-										src="https://images.pexels.com/photos/18023659/pexels-photo-18023659/free-photo-of-a-table-with-chairs-under-an-umbrella-on-a-hill.jpeg"
-										alt=""
-										width={72}
-										height={96}
-										className="object-cover rounded-md"
-									/>
-								<div className="flex flex-col justify-between w-full">
-									{/* TOP */}
-									<div className="">
-										{/* TITLE */}
-										<div className="flex items-center justify-between gap-8">
-											<h3 className="font-semibold">
-                        Product Name
-											</h3>
-											<div className="p-1 bg-gray-50 rounded-sm flex items-center gap-2">
-														<div className="text-xs text-green-500">
-															Qty x{" "}
-														</div>
-												$40
+						<div className="flex gap-4">
+							<Image
+								src="https://images.pexels.com/photos/18023659/pexels-photo-18023659/free-photo-of-a-table-with-chairs-under-an-umbrella-on-a-hill.jpeg"
+								alt=""
+								width={72}
+								height={96}
+								className="object-cover rounded-md"
+							/>
+							<div className="flex flex-col justify-between w-full">
+								{/* TOP */}
+								<div className="">
+									{/* TITLE */}
+									<div className="flex items-center justify-between gap-8">
+										<h3 className="font-semibold">
+											Product Name
+										</h3>
+										<div className="p-1 bg-gray-50 rounded-sm flex items-center gap-2">
+											<div className="text-xs text-green-500">
+												Qty x{" "}
 											</div>
-										</div>
-										{/* DESC */}
-										<div className="text-sm text-gray-500">
-                      Status
+											$40
 										</div>
 									</div>
-									{/* BOTTOM */}
-									<div className="flex justify-between text-sm">
-										<span className="text-gray-500">
-											Qty. 4
-										</span>
-										<span
-											className="text-blue-500"
-											// style={{
-											// 	cursor: isLoading
-											// 		? "not-allowed"
-											// 		: "pointer",
-											// }}
-											// onClick={() =>
-											// 	removeItem(wixClient, item._id!)
-											// }
-										>
-											Remove
-										</span>
+									{/* DESC */}
+									<div className="text-sm text-gray-500">
+										Status
 									</div>
 								</div>
+								{/* BOTTOM */}
+								<div className="flex justify-between text-sm">
+									<span className="text-gray-500">
+										Qty. 4
+									</span>
+									<span
+										className="text-blue-500"
+										// style={{
+										// 	cursor: isLoading
+										// 		? "not-allowed"
+										// 		: "pointer",
+										// }}
+										// onClick={() =>
+										// 	removeItem(wixClient, item._id!)
+										// }
+									>
+										Remove
+									</span>
+								</div>
 							</div>
+						</div>
 					</div>
 					{/* BOTTOM */}
 					<div className="">
