@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss";
+const colors = require('tailwindcss/colors')
+
 
 const config: Config = {
 	content: [
@@ -16,8 +18,7 @@ const config: Config = {
 		},
 		colors: {
 			lama: "#F35C7A",
-			white: "#FFFFFF",
-			black: "#000000",
+			...colors,
 		},
 	},
 	plugins: [],
