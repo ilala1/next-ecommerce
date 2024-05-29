@@ -3,68 +3,76 @@ import CustomizeProducts from "@/components/CustomizeProducts";
 import Add from "@/components/Add";
 import ProductImages from "@/components/ProductImages";
 // import Reviews from "@/components/Reviews";
-// import { wixClientServer } from "@/lib/wixClientServer";
+import { wixClientServer } from "@/lib/wixClientServer";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 const SinglePage = async ({ params }: { params: { slug: string } }) => {
-	//   const wixClient = await wixClientServer();
+	const wixClient = await wixClientServer();
 
-	//   const products = await wixClient.products
-	//     .queryProducts()
-	//     .eq("slug", params.slug)
-	//     .find();
+	const products = await wixClient.products
+		.queryProducts()
+		.eq("slug", params.slug)
+		.find();
 
-	//   if (!products.items[0]) {
-	//     return notFound();
-	//   }
+	if (!products.items[0]) {
+		return notFound();
+	}
 
-	//   const product = products.items[0];
+	const product = products.items[0];
+
+	console.log(product.variants);
 
 	return (
 		<div className="px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 relative flex flex-col lg:flex-row gap-16">
 			{/* IMG */}
 			<div className="w-full lg:w-1/2 lg:sticky top-20 h-max">
-				<ProductImages />
+				<ProductImages items={product.media?.items} />
 			</div>
 			{/* TEXTS */}
 			<div className="w-full lg:w-1/2 flex flex-col gap-6">
-				<h1 className="text-4xl font-medium">name</h1>
-				<p className="text-gray-500">
-					Lorem ipsum dolor sit amet consectetur adipisicing elit.
-					Possimus dolorem dicta qui eius eaque ipsam eos corporis,
-					provident asperiores laudantium fuga, illo unde! Quisquam
-					nihil natus magnam voluptate itaque adipisci?
-				</p>
+				<h1 className="text-4xl font-medium">{product.name}</h1>
+				<p className="text-gray-500">{product.description}</p>
 				<div className="h-[2px] bg-gray-100" />
-				<div className="flex items-center gap-4">
-					<h3 className="text-xl text-gray-500 line-through">$59</h3>
-					<h2 className="text-medium text-2xl">$49</h2>
-				</div>
+				{product.price?.price === product.price?.discountedPrice ? (
+					<h2 className="font-medium text-2xl">
+						{product.price?.formatted?.price}
+					</h2>
+				) : (
+					<div className="flex items-center gap-4">
+						<h3 className="text-xl text-gray-500 line-through">
+							{product.price?.formatted?.price}
+						</h3>
+						<h2 className="font-medium text-2xl">
+							{product.price?.formatted?.discountedPrice}
+						</h2>
+					</div>
+				)}
 				<div className="h-[2px] bg-gray-100" />
-				<CustomizeProducts />
-				<Add />
+				{product.variants && product.productOptions ? (
+					<CustomizeProducts
+						productId={product._id!}
+						variants={product.variants}
+						productOptions={product.productOptions}
+					/>
+				) : (
+					<Add
+						productId={product._id!}
+						variantId="00000000-0000-0000-0000-000000000000"
+						stockNumber={product.stock?.quantity || 0}
+					/>
+				)}
 				<div className="h-[2px] bg-gray-100" />
-				<div className="text-sm">
-					<h4 className="font-medium mb-4">Title</h4>
-					<p>
-						Lorem ipsum dolor, sit amet consectetur adipisicing
-						elit. Nihil consectetur aut vel est, sed quos dolorem
-						architecto, error sequi eveniet provident recusandae
-						corporis debitis saepe ex, adipisci aspernatur rerum
-						suscipit.
-					</p>
-				</div>
-				<div className="text-sm">
-					<h4 className="font-medium mb-4">Title</h4>
-					<p>
-						Lorem ipsum dolor, sit amet consectetur adipisicing
-						elit. Nihil consectetur aut vel est, sed quos dolorem
-						architecto, error sequi eveniet provident recusandae
-						corporis debitis saepe ex, adipisci aspernatur rerum
-						suscipit.
-					</p>
-				</div>
+				{product.additionalInfoSections?.map((section: any) => {
+					return (
+						<div className="text-sm" key={section.title}>
+							<h4 className="font-medium mb-4">
+								{section.title}
+							</h4>
+							<p>{section.description}</p>
+						</div>
+					);
+				})}
 				<div className="h-[2px] bg-gray-100" />
 				{/* REVIEWS */}
 				<h1 className="text-2xl">User Reviews</h1>
