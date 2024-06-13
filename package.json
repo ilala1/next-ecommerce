@@ -9,13 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@wix/ecom": "^1.0.596",
     "@wix/sdk": "^1.9.6",
     "@wix/stores": "^1.0.148",
     "isomorphic-dompurify": "^2.11.0",
     "js-cookie": "^3.0.5",
     "next": "14.2.2",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
