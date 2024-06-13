@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CartModal from "./CartModal";
-// import { useWixClient } from "@/hooks/useWixClient";
-// import Cookies from "js-cookie";
+import { useWixClient } from "@/hooks/useWixClient";
+import Cookies from "js-cookie";
 // import { useCartStore } from "@/hooks/useCartStore";
 
 const NavIcons = () => {
@@ -17,17 +17,16 @@ const NavIcons = () => {
   const router = useRouter();
   const pathName = usePathname();
 
-//   const wixClient = useWixClient();
-//   const isLoggedIn = wixClient.auth.loggedIn();
+  const wixClient = useWixClient();
+  const isLoggedIn = wixClient.auth.loggedIn();
 
   // TEMPORARY
-  const isLoggedIn = false;
+  // const isLoggedIn = false;
 
   const handleProfile = () => {
     if (!isLoggedIn) {
       router.push("/login");
     } else {
-        console.log('hello')
       setIsProfileOpen((prev) => !prev);
     }
   };
@@ -50,19 +49,19 @@ const NavIcons = () => {
 
   const handleLogout = async () => {
     setIsLoading(true);
-    // Cookies.remove("refreshToken");
-    // const { logoutUrl } = await wixClient.auth.logout(window.location.href);
+    Cookies.remove("refreshToken");
+    const { logoutUrl } = await wixClient.auth.logout(window.location.href);
     setIsLoading(false);
     setIsProfileOpen(false);
-    // router.push(logoutUrl);
+    router.push(logoutUrl);
   };
 
 
-//   const { cart, counter, getCart } = useCartStore();
+  // const { cart, counter, getCart } = useCartStore();
 
-//   useEffect(() => {
-//     getCart(wixClient);
-//   }, [wixClient, getCart]);
+  // useEffect(() => {
+  //   getCart(wixClient);
+  // }, [wixClient, getCart]);
 
   return (
     <div className="flex items-center gap-4 xl:gap-6 relative">
