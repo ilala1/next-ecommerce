@@ -21,8 +21,6 @@ const SinglePage = async ({ params }: { params: { slug: string } }) => {
 
 	const product = products.items[0];
 
-	console.log(product.variants);
-
 	return (
 		<div className="px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 relative flex flex-col lg:flex-row gap-16">
 			{/* IMG */}
@@ -36,12 +34,12 @@ const SinglePage = async ({ params }: { params: { slug: string } }) => {
 				<div className="h-[2px] bg-gray-100" />
 				{product.price?.price === product.price?.discountedPrice ? (
 					<h2 className="font-medium text-2xl">
-						{product.price?.price}
+						{product.price?.formatted?.price}
 					</h2>
 				) : (
 					<div className="flex items-center gap-4">
 						<h3 className="text-xl text-gray-500 line-through">
-							{product.price?.price}
+							{product.price?.formatted?.price}
 						</h3>
 						<h2 className="font-medium text-2xl">
 							{product.price?.discountedPrice}
