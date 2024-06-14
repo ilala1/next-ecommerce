@@ -12,7 +12,7 @@ const Footer = () => {
             <div className="text-2xl tracking-wide">SHOP</div>
           </Link>
           <p>
-            3252 Winding Way, Central Plaza, London, United Kingdom
+            3252 Winding Way, Central Plaza, London, United States
           </p>
           <span className="font-semibold">hello@test.dev</span>
           <span className="font-semibold">+1 234 567 890</span>
