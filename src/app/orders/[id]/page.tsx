@@ -5,8 +5,6 @@ import { notFound } from "next/navigation";
 const OrderPage = async ({ params }: { params: { id: string } }) => {
   const id = params.id;
 
-  console.log('id', id)
-
   const orderRes = [
     {
         _id: '34a24hdudc-ndndjjdsnd',

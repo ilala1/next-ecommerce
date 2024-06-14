@@ -91,8 +91,6 @@ const LoginPage = () => {
 					break;
 			}
 
-			console.log(response?.loginState);
-
 			switch (response?.loginState) {
 				case LoginState.SUCCESS:
 					setMessage("Successful! You are being redirected.");
@@ -112,7 +110,6 @@ const LoginPage = () => {
 					router.push("/");
 					break;
 				case LoginState.FAILURE:
-					console.log(response.errorCode)
 					if (
 						response.errorCode === "invalidEmail" ||
 						response.errorCode === "invalidPassword"
