@@ -8,94 +8,100 @@ import { format } from "timeago.js";
 const ProfilePage = async () => {
 	const wixClient = await wixClientServer();
 
-	const user = await wixClient.members.getCurrentMember({
-		fieldsets: [members.Set.FULL],
-	});
+	// const user = await wixClient.members.getCurrentMember({
+	// 	fieldsets: [members.Set.FULL],
+	// });
 
-	if (!user.member?.contactId) {
-		return <div className="">Not logged in!</div>;
-	}
+	// if (!user.member?.contactId) {
+	// 	return <div className="">Not logged in!</div>;
+	// }
 
 	const orderRes = [
-        {
-            _id: '34a24hdudc-ndndjjdsnd',
-            priceSummary: {
-                subtotal: 100,
-            },
-            // give a date in the past
-            _createdDate: new Date(),
-            status: 'COMPLETED',
-        },
-        {
-            _id: '24a4424hdudc-ndndjjds',
-            priceSummary: {
-                subtotal: 100,
-            },
-            // give a date in the past
-            _createdDate: new Date(),
-            status: 'COMPLETED',
-        },
-        {
-            _id: '2dsfsdf324r-eff4a24hds',
-            priceSummary: {
-                subtotal: 100,
-            },
-            // give a date in the past
-            _createdDate: new Date(),
-            status: 'COMPLETED',
-        }
-    ];
+		{
+			_id: "34a24hdudc-ndndjjdsnd",
+			priceSummary: {
+				subtotal: 100,
+			},
+			// give a date in the past
+			_createdDate: new Date(),
+			status: "COMPLETED",
+		},
+		{
+			_id: "24a4424hdudc-ndndjjds",
+			priceSummary: {
+				subtotal: 100,
+			},
+			// give a date in the past
+			_createdDate: new Date(),
+			status: "COMPLETED",
+		},
+		{
+			_id: "2dsfsdf324r-eff4a24hds",
+			priceSummary: {
+				subtotal: 100,
+			},
+			// give a date in the past
+			_createdDate: new Date(),
+			status: "COMPLETED",
+		},
+	];
 
 	return (
 		<div className="flex flex-col md:flex-row gap-24 md:h-[calc(100vh-180px)] items-center px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-			<div className="w-full md:w-1/2">
-				<h1 className="text-2xl">Profile</h1>
+			<div className="w-full md:w-1/2 h-[528px]">
+				<h1 className="text-2xl">Profile - Functionality Coming Soon</h1>
 				<form action={updateUser} className="mt-12 flex flex-col gap-4">
 					<input
 						type="text"
 						hidden
 						name="id"
-						defaultValue={user.member?.contactId}
+						// defaultValue={user.member?.contactId}
+						defaultValue={"1234"}
 					/>
 					<label className="text-sm text-gray-700">Username</label>
 					<input
 						type="text"
 						name="username"
-						placeholder={user.member?.profile?.nickname || "john"}
+						// placeholder={user.member?.profile?.nickname || "john"}
+						placeholder={"john"}
 						className="ring-1 ring-gray-300 rounded-md p-2 max-w-96"
 					/>
 					<label className="text-sm text-gray-700">First Name</label>
 					<input
 						type="text"
 						name="firstName"
-						placeholder={user.member?.contact?.firstName || "John"}
+						// placeholder={user.member?.contact?.firstName || "John"}
+						placeholder={"John"}
 						className="ring-1 ring-gray-300 rounded-md p-2 max-w-96"
 					/>
 					<label className="text-sm text-gray-700">Surname</label>
 					<input
 						type="text"
 						name="lastName"
-						placeholder={user.member?.contact?.lastName || "Doe"}
+						// placeholder={user.member?.contact?.lastName || "Doe"}
+						placeholder={"Doe"}
 						className="ring-1 ring-gray-300 rounded-md p-2 max-w-96"
 					/>
 					<label className="text-sm text-gray-700">Phone</label>
 					<input
 						type="text"
 						name="phone"
-						placeholder={
-							(user.member?.contact?.phones &&
-								user.member?.contact?.phones[0]) ||
-							"+1234567"
-						}
+						// placeholder={
+						// 	(user.member?.contact?.phones &&
+						// 		user.member?.contact?.phones[0]) ||
+						// 	"+1234567"
+						// }
+						placeholder={"+1234567"}
 						className="ring-1 ring-gray-300 rounded-md p-2 max-w-96"
 					/>
 					<label className="text-sm text-gray-700">E-mail</label>
 					<input
 						type="email"
 						name="email"
-						placeholder={
-							user.member?.loginEmail || "john@gmail.com"
-						}
+						// placeholder={
+						// 	user.member?.loginEmail || "john@gmail.com"
+						// }
+						placeholder={"john@gmail.com"}
 						className="ring-1 ring-gray-300 rounded-md p-2 max-w-96"
 					/>
 					<UpdateButton />
@@ -107,22 +113,26 @@ const ProfilePage = async () => {
 					{orderRes.length === 0 ? (
 						<div className="text-gray-500">No orders found.</div>
 					) : (
-                        orderRes.map((order) => (
-                            <Link
-                              href={`/orders/${order._id}`}
-                              key={order._id}
-                              className="flex justify-between px-2 py-6 rounded-md hover:bg-green-50 even:bg-slate-100"
-                            >
-                              <span className="w-1/4">{order._id?.substring(0, 10)}...</span>
-                              <span className="w-1/4">
-                                ${order.priceSummary?.subtotal}
-                              </span>
-                              {order._createdDate && (
-                                <span className="w-1/4">{format(order._createdDate)}</span>
-                              )}
-                              <span className="w-1/4">{order.status}</span>
-                            </Link>
-                          ))
+						orderRes.map((order) => (
+							<Link
+								href={`/orders/${order._id}`}
+								key={order._id}
+								className="flex justify-between px-2 py-6 rounded-md hover:bg-green-50 even:bg-slate-100"
+							>
+								<span className="w-1/4">
+									{order._id?.substring(0, 10)}...
+								</span>
+								<span className="w-1/4">
+									${order.priceSummary?.subtotal}
+								</span>
+								{order._createdDate && (
+									<span className="w-1/4">
+										{format(order._createdDate)}
+									</span>
+								)}
+								<span className="w-1/4">{order.status}</span>
+							</Link>
+						))
 					)}
 				</div>
 			</div>
