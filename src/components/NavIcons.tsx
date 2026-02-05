@@ -62,6 +62,12 @@ const NavIcons = () => {
 		getCart(wixClient);
 	}, [wixClient, getCart]);
 
+	useEffect(() => {
+		// Close popovers on navigation
+		setIsCartOpen(false);
+		setIsProfileOpen(false);
+	}, [pathName]);
+
 	return (
 		<div className="flex items-center gap-4 xl:gap-6 relative">
 			<Image

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCartStore } from "@/hooks/useCartStore";
 import { media as wixMedia } from "@wix/sdk";
 import { useWixClient } from "@/hooks/useWixClient";
@@ -20,6 +21,14 @@ const CartModal = () => {
           channelType: currentCart.ChannelType.WEB,
         });
 
+      const url =
+        (checkout as any)?.checkoutUrl ||
+        (checkout as any)?.checkout?.checkoutUrl ||
+        (checkout as any)?.redirectUrl;
+
+      if (typeof url === "string" && url.length > 0) {
+        window.location.href = url;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -98,9 +107,12 @@ const CartModal = () => {
               Shipping and taxes calculated at checkout.
             </p>
             <div className="flex justify-between text-sm">
-              <button className="rounded-md py-3 px-4 ring-1 ring-gray-300">
+              <Link
+                href="/cart"
+                className="rounded-md py-3 px-4 ring-1 ring-gray-300 inline-flex items-center justify-center"
+              >
                 View Cart
-              </button>
+              </Link>
               <button
                 className="rounded-md py-3 px-4 bg-black text-white disabled:cursor-not-allowed disabled:opacity-75"
                 disabled={isLoading}
