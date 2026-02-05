@@ -3,14 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { media as wixMedia } from "@wix/sdk";
-import { currentCart } from "@wix/ecom";
 
 import { useCartStore } from "@/hooks/useCartStore";
 import { useWixClient } from "@/hooks/useWixClient";
+import { saveLastOrderFromCart } from "@/lib/lastOrder";
 
 const CartClient = () => {
   const wixClient = useWixClient();
+  const router = useRouter();
   const { cart, isLoading, getCart, removeItem } = useCartStore();
 
   useEffect(() => {
@@ -36,25 +38,8 @@ const CartClient = () => {
 
   const handleCheckout = async () => {
     if (isLoading) return;
-    try {
-      const checkout = await wixClient.currentCart.createCheckoutFromCurrentCart({
-        channelType: currentCart.ChannelType.WEB,
-      });
-
-      const url =
-        (checkout as any)?.checkoutUrl ||
-        (checkout as any)?.checkout?.checkoutUrl ||
-        (checkout as any)?.redirectUrl;
-
-      if (typeof url === "string" && url.length > 0) {
-        window.location.href = url;
-      } else {
-        // If your Wix setup returns a different property, adjust here.
-        console.log("Checkout created, but no redirect URL found:", checkout);
-      }
-    } catch (err) {
-      console.log(err);
-    }
+    const saved = saveLastOrderFromCart(cart as any);
+    router.push(`/order-complete${saved?.id ? `?id=${encodeURIComponent(saved.id)}` : ""}`);
   };
 
   return (

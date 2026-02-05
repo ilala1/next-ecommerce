@@ -2,36 +2,24 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCartStore } from "@/hooks/useCartStore";
 import { media as wixMedia } from "@wix/sdk";
 import { useWixClient } from "@/hooks/useWixClient";
-import { currentCart } from "@wix/ecom";
+import { saveLastOrderFromCart } from "@/lib/lastOrder";
 
 const CartModal = () => {
   // TEMPORARY
   // const cartItems = true;
 
   const wixClient = useWixClient();
+  const router = useRouter();
   const { cart, isLoading, removeItem }: { cart: any, isLoading: boolean, removeItem: (client: any, itemId: string) => void } = useCartStore();
 
   const handleCheckout = async () => {
-    try {
-      const checkout =
-        await wixClient.currentCart.createCheckoutFromCurrentCart({
-          channelType: currentCart.ChannelType.WEB,
-        });
-
-      const url =
-        (checkout as any)?.checkoutUrl ||
-        (checkout as any)?.checkout?.checkoutUrl ||
-        (checkout as any)?.redirectUrl;
-
-      if (typeof url === "string" && url.length > 0) {
-        window.location.href = url;
-      }
-    } catch (err) {
-      console.log(err);
-    }
+    if (isLoading) return;
+    const saved = saveLastOrderFromCart(cart);
+    router.push(`/order-complete${saved?.id ? `?id=${encodeURIComponent(saved.id)}` : ""}`);
   };
 
   return (
