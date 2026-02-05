@@ -2,27 +2,42 @@
 
 import { useCartStore } from "@/hooks/useCartStore";
 import { useWixClient } from "@/hooks/useWixClient";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+const MAX_UNKNOWN_STOCK_QTY = 10;
 
 const Add = ({
   productId,
   variantId,
   stockNumber,
+  disabled,
+  disabledMessage,
 }: {
   productId: string;
   variantId: string;
-  stockNumber: number;
+  stockNumber: number | null;
+  disabled?: boolean;
+  disabledMessage?: string;
 }) => {
   const [quantity, setQuantity] = useState(1);
 
   // // TEMPORARY
   // const stock = 4;
 
+  const hasKnownStock = typeof stockNumber === "number";
+  const effectiveStockLimit = hasKnownStock ? stockNumber : MAX_UNKNOWN_STOCK_QTY;
+  const isOutOfStock = hasKnownStock ? stockNumber < 1 : false;
+  const isDisabled = useMemo(
+    () => Boolean(disabled) || isOutOfStock,
+    [disabled, isOutOfStock]
+  );
+
   const handleQuantity = (type: "i" | "d") => {
+    if (isDisabled) return;
     if (type === "d" && quantity > 1) {
       setQuantity((prev) => prev - 1);
     }
-    if (type === "i" && quantity < stockNumber) {
+    if (type === "i" && quantity < effectiveStockLimit) {
       setQuantity((prev) => prev + 1);
     }
   };
@@ -30,6 +45,11 @@ const Add = ({
   const wixClient = useWixClient();
 
   const { addItem, isLoading } = useCartStore();
+
+  const handleAddToCart = () => {
+    if (isLoading || isDisabled) return;
+    addItem(wixClient, productId, variantId, quantity);
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -40,7 +60,7 @@ const Add = ({
             <button
               className="cursor-pointer text-xl disabled:cursor-not-allowed disabled:opacity-20"
               onClick={() => handleQuantity("d")}
-              disabled={quantity===1}
+              disabled={isLoading || isDisabled || quantity === 1}
             >
               -
             </button>
@@ -48,24 +68,30 @@ const Add = ({
             <button
               className="cursor-pointer text-xl disabled:cursor-not-allowed disabled:opacity-20"
               onClick={() => handleQuantity("i")}
-              disabled={quantity===stockNumber}
+              disabled={
+                isLoading || isDisabled || quantity >= effectiveStockLimit
+              }
             >
               +
             </button>
           </div>
-          {stockNumber < 1 ? (
+          {disabledMessage ? (
+            <div className="text-xs">{disabledMessage}</div>
+          ) : isOutOfStock ? (
             <div className="text-xs">Product is out of stock</div>
-          ) : (
+          ) : hasKnownStock ? (
             <div className="text-xs">
               Only <span className="text-orange-500">{stockNumber} items</span>{" "}
               left!
               <br /> {"Don't"} miss it
             </div>
+          ) : (
+            <div className="text-xs">In stock</div>
           )}
         </div>
         <button
-          onClick={() => addItem(wixClient, productId, variantId, quantity)}
-          disabled={isLoading}
+          onClick={handleAddToCart}
+          disabled={isLoading || isDisabled}
           className="w-36 text-sm rounded-3xl ring-1 ring-lama text-lama py-2 px-4 hover:bg-lama hover:text-white disabled:cursor-not-allowed disabled:bg-pink-200 disabled:ring-0 disabled:text-white disabled:ring-none"
         >
           Add to Cart

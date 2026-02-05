@@ -4,6 +4,14 @@ import { products } from "@wix/stores";
 import { useEffect, useState } from "react";
 import Add from "./Add";
 
+type SelectedOptions = Record<
+	string,
+	{
+		value?: string;
+		description?: string;
+	}
+>;
+
 const CustomizeProducts = ({
 	productId,
 	variants,
@@ -13,38 +21,68 @@ const CustomizeProducts = ({
 	variants: products.Variant[];
 	productOptions: products.ProductOption[];
 }) => {
-	const [selectedOptions, setSelectedOptions] = useState<{
-		[key: string]: string;
-	}>({});
+	const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({});
 	const [selectedVariant, setSelectedVariant] = useState<products.Variant>();
+
+	const isInStock = (stock: products.Variant["stock"] | undefined) => {
+		// Be conservative: only mark OOS when Wix explicitly says so,
+		// or when quantity is provided and <= 0.
+		const qty = stock?.quantity;
+		const hasQty = typeof qty === "number";
+		if (stock?.inStock === false) return false;
+		if (hasQty && qty <= 0) return false;
+		return true;
+	};
 
 	useEffect(() => {
 		const variant = variants.find((v) => {
 			const variantChoices = v.choices;
 			if (!variantChoices) return false;
-			return Object.entries(selectedOptions).every(
-				([key, value]) => variantChoices[key] === value
-			);
+
+			return Object.entries(selectedOptions).every(([key, sel]) => {
+				const chosen = variantChoices[key];
+				if (!chosen) return false;
+
+				const candidates = [sel.description, sel.value].filter(
+					(x): x is string => typeof x === "string" && x.length > 0
+				);
+				if (candidates.length === 0) return false;
+
+				const norm = (s: string) => s.trim().toLowerCase();
+				return candidates.some((c) => norm(c) === norm(chosen));
+			});
 		});
 		setSelectedVariant(variant);
 	}, [selectedOptions, variants]);
 
-	const handleOptionSelect = (optionType: string, choice: string) => {
+	const handleOptionSelect = (
+		optionType: string,
+		choice: { value?: string; description?: string }
+	) => {
 		setSelectedOptions((prev) => ({ ...prev, [optionType]: choice }));
 	};
 
-	const isVariantInStock = (choices: { [key: string]: string }) => {
+	const isVariantInStock = (choices: SelectedOptions) => {
 		return variants.some((variant) => {
 			const variantChoices = variant.choices;
 			if (!variantChoices) return false;
 
+			const hasStock = isInStock(variant.stock);
+
 			return (
-				Object.entries(choices).every(
-					([key, value]) => variantChoices[key] === value
-				) &&
-				variant.stock?.inStock &&
-				variant.stock?.quantity &&
-				variant.stock?.quantity > 0
+				Object.entries(choices).every(([key, sel]) => {
+					const chosen = variantChoices[key];
+					if (!chosen) return false;
+
+					const candidates = [sel.description, sel.value].filter(
+						(x): x is string => typeof x === "string" && x.length > 0
+					);
+					if (candidates.length === 0) return false;
+
+					const norm = (s: string) => s.trim().toLowerCase();
+					return candidates.some((c) => norm(c) === norm(chosen));
+				}) &&
+				hasStock
 			);
 		});
 	};
@@ -58,19 +96,26 @@ const CustomizeProducts = ({
 						{option.choices?.map((choice) => {
 							const disabled = !isVariantInStock({
 								...selectedOptions,
-								[option.name!]: choice.description!,
+								[option.name!]: {
+									description: choice.description,
+									value: choice.value,
+								},
 							});
 
 							const selected =
-								selectedOptions[option.name!] ===
-								choice.description;
+								selectedOptions[option.name!]?.description ===
+									choice.description ||
+								selectedOptions[option.name!]?.value === choice.value;
 
 							const clickHandler = disabled
 								? undefined
 								: () =>
 										handleOptionSelect(
 											option.name!,
-											choice.description!
+											{
+												description: choice.description,
+												value: choice.value,
+											}
 										);
 
 							return option.name === "Color" ? (
@@ -120,14 +165,43 @@ const CustomizeProducts = ({
 					</ul>
 				</div>
 			))}
+			{(() => {
+				const allOptionsSelected =
+					productOptions.length === 0 ||
+					productOptions.every(
+						(opt) =>
+							!!opt.name &&
+							(selectedOptions[opt.name]?.description !== undefined ||
+								selectedOptions[opt.name]?.value !== undefined)
+					);
+
+				const hasSelectedVariant = Boolean(selectedVariant);
+				const inStock = hasSelectedVariant
+					? isInStock(selectedVariant?.stock)
+					: false;
+
+				const stockQty = selectedVariant?.stock?.quantity;
+				const hasStockQty = typeof stockQty === "number";
+
+				const disabled = !allOptionsSelected || !hasSelectedVariant || !inStock;
+				const disabledMessage = !allOptionsSelected
+					? "Please select options"
+					: !hasSelectedVariant
+						? "Unavailable combination"
+						: !inStock
+							? "Product is out of stock"
+							: undefined;
+
+				return (
 			<Add
 				productId={productId}
-				variantId={
-					selectedVariant?._id ||
-					"00000000-0000-0000-0000-000000000000"
-				}
-                stockNumber={selectedVariant?.stock?.quantity || 0}
+				variantId={selectedVariant?._id || ""}
+				stockNumber={hasStockQty ? stockQty : null}
+				disabled={disabled}
+				disabledMessage={disabledMessage}
 			/>
+				);
+			})()}
 		</div>
 	);
 };
