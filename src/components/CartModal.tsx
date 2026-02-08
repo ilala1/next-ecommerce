@@ -16,6 +16,8 @@ const CartModal = () => {
   const router = useRouter();
   const { cart, isLoading, removeItem }: { cart: any, isLoading: boolean, removeItem: (client: any, itemId: string) => void } = useCartStore();
 
+  const lineItems = (cart as any)?.lineItems as any[] | undefined;
+
   const handleCheckout = async () => {
     if (isLoading) return;
     const saved = saveLastOrderFromCart(cart);
@@ -24,7 +26,7 @@ const CartModal = () => {
 
   return (
     <div className="w-max absolute p-4 rounded-md shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-white top-12 right-0 flex flex-col gap-6 z-20">
-      {!cart.lineItems ? (
+      {!Array.isArray(lineItems) || lineItems.length === 0 ? (
         <div className="">Cart is Empty</div>
       ) : (
         <>
@@ -32,7 +34,7 @@ const CartModal = () => {
           {/* LIST */}
           <div className="flex flex-col gap-8">
             {/* ITEM */}
-            {cart.lineItems.map((item:any) => (
+            {lineItems.map((item:any) => (
               <div className="flex gap-4" key={item._id}>
                 {item.image && (
                   <Image
@@ -89,7 +91,9 @@ const CartModal = () => {
           <div className="">
             <div className="flex items-center justify-between font-semibold">
               <span className="">Subtotal</span>
-              <span className="">${cart.subtotal.amount}</span>
+              <span className="">
+                ${Number((cart as any)?.subtotal?.amount ?? 0).toFixed(2)}
+              </span>
             </div>
             <p className="text-gray-500 text-sm mt-2 mb-4">
               Shipping and taxes calculated at checkout.

@@ -3,7 +3,7 @@ import { currentCart } from "@wix/ecom";
 import { WixClient } from "@/context/wixContext";
 
 type CartState = {
-  cart: currentCart.Cart;
+  cart: currentCart.Cart | null;
   isLoading: boolean;
   counter: number;
   getCart: (wixClient: WixClient) => void;
@@ -18,19 +18,19 @@ type CartState = {
 };
 
 export const useCartStore = create<CartState>((set) => ({
-  cart: [],
+  cart: null,
   isLoading: true,
   counter: 0,
   getCart: async (wixClient) => {
     try {
       const cart = await wixClient.currentCart.getCurrentCart();
       set({
-        cart: cart || [],
+        cart: cart || null,
         isLoading: false,
         counter: cart?.lineItems?.length || 0,
       });
     } catch (err) {
-      set((prev) => ({ ...prev, isLoading: false }));
+      set((prev) => ({ ...prev, cart: null, counter: 0, isLoading: false }));
     }
   },
   addItem: async (wixClient, productId, variantId, quantity) => {
@@ -49,7 +49,7 @@ export const useCartStore = create<CartState>((set) => ({
     });
 
     set({
-      cart: response.cart,
+      cart: response.cart || null,
       counter: response.cart?.lineItems?.length || 0,
       isLoading: false,
     });
@@ -61,7 +61,7 @@ export const useCartStore = create<CartState>((set) => ({
     );
 
     set({
-      cart: response.cart,
+      cart: response.cart || null,
       counter: response.cart?.lineItems?.length || 0,
       isLoading: false,
     });
@@ -74,7 +74,7 @@ export const useCartStore = create<CartState>((set) => ({
       // If there is no active cart (or deletion fails), still clear local UI state.
     }
     set({
-      cart: [],
+      cart: null,
       counter: 0,
       isLoading: false,
     });
