@@ -3,15 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { media as wixMedia } from "@wix/sdk";
 
 import { LastOrder, loadLastOrder } from "@/lib/lastOrder";
 
-const OrderCompleteClient = () => {
-  const searchParams = useSearchParams();
-  const idFromUrl = searchParams.get("id");
-
+const OrderCompleteClient = ({ idFromUrl }: { idFromUrl?: string | null }) => {
   const [order, setOrder] = useState<LastOrder | null>(null);
 
   useEffect(() => {
