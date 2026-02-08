@@ -6,13 +6,23 @@ import Link from "next/link";
 import { media as wixMedia } from "@wix/sdk";
 
 import { LastOrder, loadLastOrder } from "@/lib/lastOrder";
+import { useCartStore } from "@/hooks/useCartStore";
+import { useWixClient } from "@/hooks/useWixClient";
 
 const OrderCompleteClient = ({ idFromUrl }: { idFromUrl?: string | null }) => {
+  const wixClient = useWixClient();
+  const { clearCart } = useCartStore();
   const [order, setOrder] = useState<LastOrder | null>(null);
 
   useEffect(() => {
-    setOrder(loadLastOrder());
-  }, []);
+    const loaded = loadLastOrder();
+    setOrder(loaded);
+
+    // Clear cart only after a "successful" demo checkout (i.e. we have a saved order).
+    if (loaded) {
+      void clearCart(wixClient);
+    }
+  }, [clearCart, wixClient]);
 
   const createdAtLabel = useMemo(() => {
     if (!order?.createdAt) return null;

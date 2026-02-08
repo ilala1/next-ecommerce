@@ -14,6 +14,7 @@ type CartState = {
     quantity: number
   ) => void;
   removeItem: (wixClient: WixClient, itemId: string) => void;
+  clearCart: (wixClient: WixClient) => void;
 };
 
 export const useCartStore = create<CartState>((set) => ({
@@ -62,6 +63,19 @@ export const useCartStore = create<CartState>((set) => ({
     set({
       cart: response.cart,
       counter: response.cart?.lineItems?.length || 0,
+      isLoading: false,
+    });
+  },
+  clearCart: async (wixClient) => {
+    set((state) => ({ ...state, isLoading: true }));
+    try {
+      await wixClient.currentCart.deleteCurrentCart();
+    } catch (err) {
+      // If there is no active cart (or deletion fails), still clear local UI state.
+    }
+    set({
+      cart: [],
+      counter: 0,
       isLoading: false,
     });
   },
