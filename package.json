@@ -15,7 +15,7 @@
     "@wix/stores": "^1.0.581",
     "isomorphic-dompurify": "^2.11.0",
     "js-cookie": "^3.0.5",
-    "next": "^14.2.33",
+    "next": "^16.2.2",
     "react": "^18",
     "react-dom": "^18",
     "timeago.js": "^4.0.2",
