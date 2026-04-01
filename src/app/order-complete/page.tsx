@@ -1,11 +1,12 @@
 import OrderCompleteClient from "./OrderCompleteClient";
 
-const OrderCompletePage = ({
+const OrderCompletePage = async ({
   searchParams,
 }: {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) => {
-  const idParam = searchParams?.id;
+  const sp = await searchParams;
+  const idParam = sp?.id;
   const idFromUrl = Array.isArray(idParam) ? idParam[0] : idParam;
 
   return <OrderCompleteClient idFromUrl={idFromUrl} />;

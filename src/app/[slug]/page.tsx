@@ -7,13 +7,30 @@ import { wixClientServer } from "@/lib/wixClientServer";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-const SinglePage = async ({ params }: { params: { slug: string } }) => {
+const SinglePage = async ({
+	params,
+}: {
+	params: Promise<{ slug?: string | string[] }>;
+}) => {
+	const resolved = await params;
+	const rawSlug = resolved.slug;
+	const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
+
+	if (!slug || typeof slug !== "string" || !slug.trim()) {
+		notFound();
+	}
+
 	const wixClient = await wixClientServer();
 
-	const products = await wixClient.products
-		.queryProducts()
-		.eq("slug", params.slug)
-		.find();
+	let products;
+	try {
+		products = await wixClient.products
+			.queryProducts()
+			.eq("slug", slug)
+			.find();
+	} catch {
+		notFound();
+	}
 
 	if (!products.items[0]) {
 		return notFound();

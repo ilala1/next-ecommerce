@@ -8,6 +8,20 @@ import Pagination from "./Pagination";
 
 const PRODUCT_PER_PAGE = 8;
 
+type ListSearchParams = Record<string, string | string[] | undefined>;
+
+/** Fields supported by Wix `ProductsQueryBuilder.ascending` / `descending`. */
+type ProductsSortField =
+	| "_id"
+	| "name"
+	| "slug"
+	| "sku"
+	| "productType"
+	| "price"
+	| "priceData.price"
+	| "numericId"
+	| "lastUpdated";
+
 const ProductList = async ({
 	categoryId,
 	limit,
@@ -15,31 +29,52 @@ const ProductList = async ({
 }: {
 	categoryId: string;
 	limit?: number;
-	searchParams?: any;
+	searchParams?: ListSearchParams | Promise<ListSearchParams>;
 }) => {
+	const sp = (await Promise.resolve(searchParams ?? {})) as ListSearchParams;
 	const wixClient = await wixClientServer();
+
+	const nameFilter = Array.isArray(sp.name) ? sp.name[0] : sp.name;
+	const typeFilter = Array.isArray(sp.type) ? sp.type[0] : sp.type;
+	const minFilter = Array.isArray(sp.min) ? sp.min[0] : sp.min;
+	const maxFilter = Array.isArray(sp.max) ? sp.max[0] : sp.max;
+	const pageFilter = Array.isArray(sp.page) ? sp.page[0] : sp.page;
+	const sortFilter = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort;
+	const catFilter = Array.isArray(sp.cat) ? sp.cat[0] : sp.cat;
+	const minPrice = minFilter != null && minFilter !== "" ? Number(minFilter) : 0;
+	const maxPrice =
+		maxFilter != null && maxFilter !== ""
+			? Number(maxFilter)
+			: 999999;
 
 	const productQuery = wixClient.products
 		.queryProducts()
-		.startsWith("name", searchParams?.name || "")
+		.startsWith("name", nameFilter || "")
 		.eq("collectionIds", categoryId)
 		.hasSome(
 			"productType",
-			searchParams?.type ? [searchParams.type] : ["physical", "digital"]
+			typeFilter ? [typeFilter] : ["physical", "digital"]
 		)
-		.gt("priceData.price", searchParams?.min || 0)
-		.lt("priceData.price", searchParams?.max || 999999)
+		.gt(
+			"priceData.price",
+			Number.isFinite(minPrice) ? minPrice : 0
+		)
+		.lt(
+			"priceData.price",
+			Number.isFinite(maxPrice) ? maxPrice : 999999
+		)
 		.limit(limit || PRODUCT_PER_PAGE)
 		.skip(
-			searchParams?.page
-				? parseInt(searchParams.page) * (limit || PRODUCT_PER_PAGE)
+			pageFilter
+				? parseInt(pageFilter, 10) * (limit || PRODUCT_PER_PAGE)
 				: 0
 		);
 	// .find();
 	let res;
 
-	if (searchParams?.sort) {
-		const [sortType, sortBy] = searchParams.sort.split(" ");
+	if (sortFilter) {
+		const [sortType, sortByRaw] = sortFilter.split(" ");
+		const sortBy = sortByRaw as ProductsSortField;
 
 		if (sortType === "asc") {
 			res = await productQuery.ascending(sortBy).find();
@@ -113,7 +148,7 @@ const ProductList = async ({
 						</button>
 					</Link>
 				))}
-			{searchParams?.cat || searchParams?.name ? (
+			{catFilter || nameFilter ? (
 				<Pagination
 					currentPage={res.currentPage || 0}
 					hasPrev={res.hasPrev()}

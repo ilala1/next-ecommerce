@@ -5,11 +5,19 @@ import { wixClientServer } from "@/lib/wixClientServer";
 import Image from "next/image";
 import { Suspense } from "react";
 
-const ListPage = async ({ searchParams }: { searchParams: any }) => {
+const ListPage = async ({
+  searchParams,
+}: {
+  searchParams:
+    | Promise<Record<string, string | string[] | undefined>>
+    | Record<string, string | string[] | undefined>;
+}) => {
+  const sp = await Promise.resolve(searchParams);
   const wixClient = await wixClientServer();
 
+  const catSlug = Array.isArray(sp.cat) ? sp.cat[0] : sp.cat;
   const cat = await wixClient.collections.getCollectionBySlug(
-    searchParams.cat || "all-products"
+    catSlug || "all-products"
   );
 
   return (
@@ -26,7 +34,13 @@ const ListPage = async ({ searchParams }: { searchParams: any }) => {
           </button>
         </div>
         <div className="relative w-1/3">
-          <Image src="/woman.png" alt="" fill className="object-contain" />
+          <Image
+            src="/woman.png"
+            alt=""
+            fill
+            sizes="33vw"
+            className="object-contain"
+          />
         </div>
       </div>
       {/* FILTER */}
@@ -38,7 +52,7 @@ const ListPage = async ({ searchParams }: { searchParams: any }) => {
           categoryId={
             cat.collection?._id || "00000000-000000-000000-000000000001"
           }
-          searchParams={searchParams}
+          searchParams={sp}
         />
       </Suspense>
     </div>
