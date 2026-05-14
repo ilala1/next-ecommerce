@@ -1,16 +1,39 @@
-import { OAuthStrategy, createClient } from "@wix/sdk";
+import { OAuthStrategy, TokenRole, createClient } from "@wix/sdk";
 import { collections, products } from "@wix/stores";
 // import { orders } from "@wix/ecom";
 import { cookies } from "next/headers";
 import { members } from '@wix/members';
 
+const emptyTokens = {
+  accessToken: { value: "", expiresAt: 0 },
+  refreshToken: { value: "", role: TokenRole.NONE },
+};
+
 export const wixClientServer = async () => {
-  let refreshToken;
+  const clientId = process.env.NEXT_PUBLIC_WIX_CLIENT_ID?.trim();
+  if (!clientId) {
+    throw new Error(
+      "NEXT_PUBLIC_WIX_CLIENT_ID is missing or empty. Add it under Vercel Project Settings → Environment Variables for Production and Preview, then redeploy."
+    );
+  }
+
+  let refreshToken = emptyTokens.refreshToken;
 
   try {
     const cookieStore = await cookies();
-    refreshToken = JSON.parse(cookieStore.get("refreshToken")?.value || "{}");
-  } catch (e) {}
+    const raw = cookieStore.get("refreshToken")?.value;
+    if (raw) {
+      const parsed = JSON.parse(raw) as { value?: string; role?: TokenRole };
+      if (parsed && typeof parsed === "object" && parsed.value) {
+        refreshToken = {
+          value: parsed.value,
+          role: parsed.role ?? TokenRole.VISITOR,
+        };
+      }
+    }
+  } catch {
+    refreshToken = emptyTokens.refreshToken;
+  }
 
   const wixClient = createClient({
     modules: {
@@ -20,10 +43,10 @@ export const wixClientServer = async () => {
       members,
     },
     auth: OAuthStrategy({
-      clientId: process.env.NEXT_PUBLIC_WIX_CLIENT_ID!,
+      clientId,
       tokens: {
         refreshToken,
-        accessToken: { value: "", expiresAt: 0 },
+        accessToken: emptyTokens.accessToken,
       },
     }),
   });

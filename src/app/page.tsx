@@ -4,9 +4,13 @@ import Slider from "@/components/Slider";
 import { Suspense } from "react";
 
 const HomePage = async () => {
-	// const wixClient = await wixClientServer();
-
-	// const res = await wixClient.products.queryProducts().find();
+	const featuredCategoryId =
+		process.env.FEATURED_PRODUCTS_CATEGORY_ID?.trim();
+	if (!featuredCategoryId) {
+		throw new Error(
+			"FEATURED_PRODUCTS_CATEGORY_ID is missing or empty. Add it under Vercel Project Settings → Environment Variables, then redeploy."
+		);
+	}
 
 	return (
 		<div className="">
@@ -15,7 +19,7 @@ const HomePage = async () => {
 				<h1 className="text-2xl">Featured Products</h1>
 				<Suspense fallback={<div>Loading...</div>}>
 					<ProductList
-						categoryId={process.env.FEATURED_PRODUCTS_CATEGORY_ID!}
+						categoryId={featuredCategoryId}
 						limit={4}
 					/>
 				</Suspense>
